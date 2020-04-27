@@ -17,14 +17,14 @@ if [[ "$(cat < /etc/ssh/sshd_config | grep -c "BonvScripts")" -eq 1 ]]; then
  echo "## configured by BonvScripts auto-root script" >> /etc/ssh/sshd_config
 fi
 
-until [[ "$newsshpass" =~ ^[a-zA-Z0-9_]+$ ]]; do
-	read -rp " Enter your new Root Password: " -e newsshpass
+until [[ "$newsshpassh" =~ ^[a-zA-Z0-9_]+$ ]]; do
+	read -rp " Enter your new Root Password: " -e newsshpassh
 done
 
 # Check if machine throws bad config error
 # Then fix it 
 if [[ "$(sudo sshd -T | grep -c "Bad configuration")" -eq 1 ]]; then
- cat <<'eof' > /etc/ssh/sshd_config
+ sudo cat <<'eof' > /etc/ssh/sshd_config
 Port 22
 AddressFamily inet
 ListenAddress 0.0.0.0
@@ -65,7 +65,8 @@ fi
 # Checking if PasswordAuthentication is not allowed yet
 if [[ "$(sudo sshd -T | grep -i "passwordauthentication" | awk '{print $2}')" != "yes" ]]; then
  echo "Allowing PasswordAuthentication..."
- sudo sed -i 's/[PasswordAuthentication].*//g' /etc/ssh/sshd_config &> /dev/null
+ sudo sed -i 's/PasswordAuthentication.*//g' /etc/ssh/sshd_config &> /dev/null
+ sudo sed -i 's/#PasswordAuthentication.*//g' /etc/ssh/sshd_config &> /dev/null
  echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
  else
  echo "PasswordAuthentication already allowed"
