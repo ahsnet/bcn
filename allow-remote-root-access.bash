@@ -24,7 +24,8 @@ done
 # Checking ssh daemon if PermitRootLogin is not allowed yet
 if [[ "$(sudo sshd -T | grep -i "permitrootlogin" | awk '{print $2}')" != "yes" ]]; then
  echo "Allowing PermitRootLogin..."
- sudo sed -i 's/[PermitRootLogin].*//g' /etc/ssh/sshd_config &> /dev/null
+ sudo sed -i 's/PermitRootLogin.*//g' /etc/ssh/sshd_config &> /dev/null
+ sudo sed -i 's/#PermitRootLogin.*//g' /etc/ssh/sshd_config &> /dev/null
  echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
  else
  echo "PermitRootLogin already allowed.."
