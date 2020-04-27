@@ -22,18 +22,18 @@ until [[ "$newsshpass" =~ ^[a-zA-Z0-9_]+$ ]]; do
 done
 
 # Checking ssh daemon if PermitRootLogin is not allowed yet
-if [[ "$(sshd -T | grep -i "permitrootlogin" | awk '{print $2}')" != "yes" ]]; then
+if [[ "$(sudo sshd -T | grep -i "permitrootlogin" | awk '{print $2}')" != "yes" ]]; then
  echo "Allowing PermitRootLogin..."
- sed -i 's/[PermitRootLogin].*//g' /etc/ssh/sshd_config
+ sudo sed -i 's/[PermitRootLogin].*//g' /etc/ssh/sshd_config &> /dev/null
  echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
  else
  echo "PermitRootLogin already allowed.."
 fi
 
 # Checking if PasswordAuthentication is not allowed yet
-if [[ "$(sshd -T | grep -i "passwordauthentication" | awk '{print $2}')" != "yes" ]]; then
+if [[ "$(sudo sshd -T | grep -i "passwordauthentication" | awk '{print $2}')" != "yes" ]]; then
  echo "Allowing PasswordAuthentication..."
- sed -i 's/[PasswordAuthentication].*//g' /etc/ssh/sshd_config
+ sudo sed -i 's/[PasswordAuthentication].*//g' /etc/ssh/sshd_config &> /dev/null
  echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
  else
  echo "PasswordAuthentication already allowed"
@@ -45,13 +45,13 @@ echo -e "$newsshpass\n$newsshpass\n" | sudo passwd root &> /dev/null
 # Restarting OpenSSH Service to save all of our changes
 echo "Restarting openssh service..."
 if [[ ! "$(command -v systemctl)" ]]; then
- service ssh restart &> /dev/null
- service sshd restart &> /dev/null
+ sudo service ssh restart &> /dev/null
+ sudo service sshd restart &> /dev/null
  else
- systemctl restart ssh &> /dev/null
- systemctl restart sshd &> /dev/null
+ sudo systemctl restart ssh &> /dev/null
+ sudo systemctl restart sshd &> /dev/null
 fi
 
-echo -e "\nNow check if your SSH are accessible using root\nIP Address: $(wget -4qO- http://ipinfo.io/ip || curl -4sSL http://ipinfo.io/ip)\nSSH Port: $(ss -4tlnp | grep -i "ssh" | awk '{print $4}' | cut -d: -f2 | head -n1)\n"
+echo -e "\nNow check if your SSH are accessible using root\nIP Address: $(wget -4qO- http://ipinfo.io/ip || curl -4sSL http://ipinfo.io/ip)\nSSH Port: $(sudo ss -4tlnp | grep -i "ssh" | awk '{print $4}' | cut -d: -f2 | head -n1)\n"
 
 exit 0
