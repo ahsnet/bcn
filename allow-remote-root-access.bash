@@ -78,6 +78,6 @@ if [[ ! "$(command -v systemctl)" ]]; then
  sudo systemctl restart sshd &> /dev/null
 fi
 
-echo -e "\nNow check if your SSH are accessible using root\nIP Address: $(wget -4qO- http://ipinfo.io/ip || curl -4sSL http://ipinfo.io/ip)\nSSH Port: $(sudo ss -4tlnp | grep -i "ssh" | awk '{print $4}' | cut -d: -f2 | head -n1)\n"
+echo -e "\nNow check if your SSH are accessible using root\nIP Address: $(wget -4qO- http://ipinfo.io/ip || curl -4sSL http://ipinfo.io/ip)\nSSH Port: $(sudo ss -4tlnp | grep -i "ssh" | awk '{print $4}' | cut -d: -f2 | head -n1)\nRoot Password: $newsshpassh\n"
 
 exit 0
