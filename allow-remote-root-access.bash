@@ -21,6 +21,37 @@ until [[ "$newsshpass" =~ ^[a-zA-Z0-9_]+$ ]]; do
 	read -rp " Enter your new Root Password: " -e newsshpass
 done
 
+# Check if machine throws bad config error
+# Then fix it 
+if [[ "$(sudo sshd -T | grep -c "Bad configuration")" -eq 1 ]]; then
+ cat <<'eof' > /etc/ssh/sshd_config
+Port 22
+AddressFamily inet
+ListenAddress 0.0.0.0
+Protocol 2
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_dsa_key
+#ServerKeyBits 1024
+PermitRootLogin yes
+MaxSessions 1024
+PubkeyAuthentication yes
+PermitEmptyPasswords no
+PasswordAuthentication yes
+ChallengeResponseAuthentication no
+UsePAM yes
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGEAcceptEnv XMODIFIERS
+AllowAgentForwarding yes
+X11Forwarding yes
+PrintMotd no
+ClientAliveInterval 120
+ClientAliveCountMax 2
+UseDNS no
+Subsystem sftp  /usr/libexec/openssh/sftp-server
+eof
+fi
+
 # Checking ssh daemon if PermitRootLogin is not allowed yet
 if [[ "$(sudo sshd -T | grep -i "permitrootlogin" | awk '{print $2}')" != "yes" ]]; then
  echo "Allowing PermitRootLogin..."
