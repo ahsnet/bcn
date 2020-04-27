@@ -8,22 +8,15 @@ if [[ ! "$(command -v sudo)" ]]; then
  exit 1
 fi
 
-# Tricking the script to run only at non-configured sshd config
-# All of my distributed sshd configs are root allowed and password auth allowed, so checking if 'BonvScripts' word is found in the script is more variant.
-if [[ "$(cat < /etc/ssh/sshd_config | grep -c "BonvScripts")" -eq 1 ]]; then
- echo "BonvScripts already configured your OpenSSH server, exiting.."
- exit 1
- else
- echo "## configured by BonvScripts auto-root script" >> /etc/ssh/sshd_config
-fi
-
 until [[ "$newsshpassh" =~ ^[a-zA-Z0-9_]+$ ]]; do
-	read -rp " Enter your new Root Password: " -e newsshpassh
+read -rp " Enter your new Root Password: " -e newsshpassh
 done
 
 # Check if machine throws bad config error
 # Then fix it 
 if [[ "$(sudo sshd -T | grep -c "Bad configuration")" -eq 1 ]]; then
+ sudo service ssh restart &> /dev/null
+ sudo service sshd restart &> /dev/null
  sudo cat <<'eof' > /etc/ssh/sshd_config
 Port 22
 AddressFamily inet
